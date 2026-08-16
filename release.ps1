@@ -22,6 +22,9 @@ $setup = "$root\dist\Parrot-Setup.exe"
 $app = "$root\dist\Parrot.exe"
 if (-not (Test-Path $setup)) { throw "setup exe missing" }
 
+# git/gh write progress to stderr; don't let that abort the script.
+$ErrorActionPreference = 'Continue'
+
 if (-not $NoGit) {
     Write-Host "== Commit + push ==" -ForegroundColor Cyan
     git -C $root add -A
