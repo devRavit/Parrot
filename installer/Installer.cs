@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Reflection;
@@ -11,7 +11,7 @@ internal static class Program
 {
     public const string AppName = "Parrot";
     public const string ExeName = "Parrot.exe";
-    public const string Version = "1.0.0";
+    public const string Version = "2.0.1";
     public const string RunName = "Parrot";
     public const string ArpKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Parrot";
 
@@ -352,3 +352,4 @@ internal static class Shortcuts
         catch { }
     }
 }
+
