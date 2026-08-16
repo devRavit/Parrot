@@ -1,42 +1,49 @@
 namespace Parrot;
 
-/// <summary>Normal apps: replace the Windows system cursor.</summary>
+/// <summary>Normal apps: replace the full Windows cursor scheme (all mouse-event states).</summary>
 internal sealed class SystemCursorStrategy : ICursorStrategy
 {
     private readonly ISystemCursorService _sys;
-    private readonly Config _cfg;
-    public SystemCursorStrategy(ISystemCursorService sys, Config cfg) { _sys = sys; _cfg = cfg; }
+    private readonly ICursorProvider _provider;
+    public SystemCursorStrategy(ISystemCursorService sys, ICursorProvider provider) { _sys = sys; _provider = provider; }
     public StrategyKind Kind => StrategyKind.System;
-    public void Apply(CursorImage image) => _sys.Apply(image, _cfg.ReplaceAllTypes);
-    public void Clear() { /* system cursor stays as the global baseline */ }
+    public void Apply(CursorSpec spec) => _sys.Apply(_provider.RenderScheme(spec));
+    public void Clear() { /* system scheme stays as the global baseline */ }
 }
 
-/// <summary>Apps that allow injection (MuMu, LDPlayer, most windowed apps): the injected hook
-/// replaces their cursor; we also keep the system cursor as a baseline.</summary>
+/// <summary>Apps that allow injection: the injected hook replaces their cursor; we also keep the
+/// full system scheme as a baseline.</summary>
 internal sealed class InjectionStrategy : ICursorStrategy
 {
     private readonly IInjectionService _inj;
     private readonly ISystemCursorService _sys;
-    private readonly Config _cfg;
-    public InjectionStrategy(IInjectionService inj, ISystemCursorService sys, Config cfg) { _inj = inj; _sys = sys; _cfg = cfg; }
+    private readonly ICursorProvider _provider;
+    public InjectionStrategy(IInjectionService inj, ISystemCursorService sys, ICursorProvider provider)
+    { _inj = inj; _sys = sys; _provider = provider; }
     public StrategyKind Kind => StrategyKind.Injection;
-    public void Apply(CursorImage image)
+    public void Apply(CursorSpec spec)
     {
-        _inj.WriteActiveCursor(image);          // injected hook live-reloads this
-        _sys.Apply(image, _cfg.ReplaceAllTypes); // baseline for any non-hooked windows
+        using (var img = _provider.Render(spec)) _inj.WriteActiveCursor(img);
+        _sys.Apply(_provider.RenderScheme(spec));
     }
     public void Clear() { /* injected hook persists in the target; system baseline stays */ }
 }
 
-/// <summary>Apps that block injection: hide the OS cursor and draw a topmost overlay that follows
-/// the mouse.</summary>
+/// <summary>Apps that block injection: hide the OS cursor and draw a topmost overlay.</summary>
 internal sealed class OverlayStrategy : ICursorStrategy
 {
     private readonly IOverlayService _overlay;
     private readonly ISystemCursorService _sys;
-    public OverlayStrategy(IOverlayService overlay, ISystemCursorService sys) { _overlay = overlay; _sys = sys; }
+    private readonly ICursorProvider _provider;
+    public OverlayStrategy(IOverlayService overlay, ISystemCursorService sys, ICursorProvider provider)
+    { _overlay = overlay; _sys = sys; _provider = provider; }
     public StrategyKind Kind => StrategyKind.Overlay;
-    public void Apply(CursorImage image) { _sys.Blank(); _overlay.Show(image); }
+    public void Apply(CursorSpec spec)
+    {
+        _sys.Blank();
+        using var img = _provider.Render(spec);
+        _overlay.Show(img);
+    }
     public void Clear() { _overlay.Hide(); _sys.Restore(); }
 }
 

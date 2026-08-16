@@ -5,7 +5,7 @@ namespace Parrot;
 
 /// <summary>High-quality procedural cursor designs (gradient fill, soft shadow, dual outline).
 /// Returns straight-alpha bitmaps suitable for CreateIconIndirect.</summary>
-internal static class CursorArt
+internal static partial class CursorArt
 {
     public static readonly string[] DesignNames =
         { "Arrow", "Crosshair", "Ring", "Dot", "Diamond", "Plus", "Target", "Bracket", "Bold Arrow" };

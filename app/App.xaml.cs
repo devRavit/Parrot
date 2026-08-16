@@ -35,11 +35,11 @@ public partial class App : System.Windows.Application
         var rules = new IProcessRule[] { new SelfRule(), new SystemShellRule(), new AntiCheatRule() };
         var resolver = new StrategyResolver(rules, inj, _provider, cfg, store);
         var factory = new StrategyFactory(
-            new SystemCursorStrategy(sys, cfg),
-            new InjectionStrategy(inj, sys, cfg),
-            new OverlayStrategy(overlay, sys));
+            new SystemCursorStrategy(sys, _provider),
+            new InjectionStrategy(inj, sys, _provider),
+            new OverlayStrategy(overlay, sys, _provider));
         var monitor = new ForegroundMonitor();
-        _controller = new CursorController(cfg, _provider, resolver, factory, monitor, sys, overlay, inj, store);
+        _controller = new CursorController(cfg, resolver, factory, monitor, sys, overlay, inj, store);
         _updater = new GitHubUpdateService(ExitForUpdate);
 
         _tray = BuildTray();

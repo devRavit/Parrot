@@ -11,7 +11,7 @@
     <AssemblyName>Parrot</AssemblyName>
     <RootNamespace>Parrot</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <Product>Parrot</Product>
     <Company>Parrot</Company>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -35,4 +35,5 @@
   </ItemGroup>
 
 </Project>
+
 

@@ -1,12 +1,10 @@
-using System.Windows.Threading;
-
 namespace Parrot;
 
 /// <summary>Orchestrates cursor application: watches the active app, resolves its strategy, and
-/// applies the current cursor through that strategy. Depends only on abstractions.</summary>
+/// applies the current cursor scheme through that strategy. Applies once per app change — never on
+/// mouse movement — so resize borders don't flicker. Depends only on abstractions.</summary>
 internal sealed class CursorController
 {
-    private readonly ICursorProvider _provider;
     private readonly IStrategyResolver _resolver;
     private readonly StrategyFactory _factory;
     private readonly IForegroundMonitor _monitor;
@@ -14,7 +12,6 @@ internal sealed class CursorController
     private readonly IOverlayService _overlay;
     private readonly IInjectionService _inj;
     private readonly ISettingsStore _store;
-    private readonly DispatcherTimer _reassert;
 
     private ICursorStrategy? _active;
     private ProcessTarget _target;
@@ -23,15 +20,12 @@ internal sealed class CursorController
     public event Action? Changed;
     public bool Enabled => Cfg.Enabled;
 
-    public CursorController(Config cfg, ICursorProvider provider, IStrategyResolver resolver,
-        StrategyFactory factory, IForegroundMonitor monitor, ISystemCursorService sys,
-        IOverlayService overlay, IInjectionService inj, ISettingsStore store)
+    public CursorController(Config cfg, IStrategyResolver resolver, StrategyFactory factory,
+        IForegroundMonitor monitor, ISystemCursorService sys, IOverlayService overlay,
+        IInjectionService inj, ISettingsStore store)
     {
-        Cfg = cfg; _provider = provider; _resolver = resolver; _factory = factory;
-        _monitor = monitor; _sys = sys; _overlay = overlay; _inj = inj; _store = store;
-
-        _reassert = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
-        _reassert.Tick += (_, _) => { if (Cfg.Enabled && _active is { Kind: not StrategyKind.Overlay }) _sys.Reassert(); };
+        Cfg = cfg; _resolver = resolver; _factory = factory; _monitor = monitor;
+        _sys = sys; _overlay = overlay; _inj = inj; _store = store;
     }
 
     public void Start()
@@ -40,7 +34,7 @@ internal sealed class CursorController
         _sys.Restore();                 // self-heal any leftover override from a crash
         _monitor.TargetChanged += OnTargetChanged;
         _monitor.Start();
-        if (Cfg.Enabled) { _reassert.Start(); ApplyTo(_monitor.Current()); }
+        if (Cfg.Enabled) ApplyTo(_monitor.Current());
         Changed?.Invoke();
     }
 
@@ -49,8 +43,8 @@ internal sealed class CursorController
         if (enabled == Cfg.Enabled) return;
         Cfg.Enabled = enabled;
         _store.Save(Cfg);
-        if (enabled) { _reassert.Start(); ApplyTo(_monitor.Current()); }
-        else { _reassert.Stop(); ClearActive(); _sys.Restore(); }
+        if (enabled) ApplyTo(_monitor.Current());
+        else { ClearActive(); _sys.Restore(); }
         Changed?.Invoke();
     }
 
@@ -60,12 +54,11 @@ internal sealed class CursorController
     public void SettingsChanged()
     {
         _store.Save(Cfg);
-        if (Cfg.Enabled && _active != null) using (var img = CurrentImage()) _active.Apply(img);
+        if (Cfg.Enabled && _active != null) _active.Apply(CurrentSpec());
     }
 
     public void Shutdown()
     {
-        _reassert.Stop();
         _monitor.TargetChanged -= OnTargetChanged;
         _monitor.Dispose();
         _overlay.Dispose();
@@ -79,15 +72,13 @@ internal sealed class CursorController
     {
         _target = target;
         var kind = _resolver.Resolve(target, onResolved: () => { if (Cfg.Enabled) ApplyTo(_target); })
-                   ?? StrategyKind.System;   // treat undecided as System until the probe finishes
+                   ?? StrategyKind.System;   // undecided -> System until the async probe finishes
         var strategy = _factory.Get(kind);
         if (!ReferenceEquals(strategy, _active)) { _active?.Clear(); _active = strategy; }
-        using var img = CurrentImage();
-        _active.Apply(img);
+        _active.Apply(CurrentSpec());
     }
 
     private void ClearActive() { _active?.Clear(); _active = null; }
 
-    private CursorImage CurrentImage() =>
-        _provider.Render(new CursorSpec(Cfg.DesignName, Cfg.Size, Cfg.Color, Cfg.ReplaceAllTypes));
+    private CursorSpec CurrentSpec() => new(Cfg.DesignName, Cfg.Size, Cfg.Color, Cfg.ReplaceAllTypes);
 }

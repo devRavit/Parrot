@@ -25,6 +25,9 @@ internal interface ICursorProvider
 {
     IReadOnlyList<CursorDef> Designs { get; }
     CursorImage Render(CursorSpec spec);
+    /// <summary>Render a full cursor set (OCR id -> image) covering all mouse-event states so the
+    /// visible cursor stays consistent (no size-jump flicker at resize borders).</summary>
+    IReadOnlyDictionary<uint, CursorImage> RenderScheme(CursorSpec spec);
     Bitmap Preview(CursorDef def, int box, int colorIndex);
     void Reload();
 }
@@ -33,7 +36,8 @@ internal interface ICursorProvider
 internal interface ISystemCursorService
 {
     bool Active { get; }
-    void Apply(CursorImage image, bool replaceAllTypes);
+    /// <summary>Apply a full cursor scheme (takes ownership of the images).</summary>
+    void Apply(IReadOnlyDictionary<uint, CursorImage> scheme);
     void Blank();
     void Reassert();
     void Restore();
@@ -90,7 +94,7 @@ internal interface IUpdateService
 internal interface ICursorStrategy
 {
     StrategyKind Kind { get; }
-    void Apply(CursorImage image);
+    void Apply(CursorSpec spec);
     void Clear();
 }
 

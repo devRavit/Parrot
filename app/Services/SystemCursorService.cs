@@ -2,10 +2,11 @@ using static Parrot.Native;
 
 namespace Parrot;
 
-/// <summary>Replaces / blanks / restores the Windows system cursors (SetSystemCursor).</summary>
+/// <summary>Applies a full custom cursor scheme (one image per mouse-event state) via
+/// SetSystemCursor. Installs each cursor once — never on mouse movement — to avoid resize-border
+/// flicker (repeated SetSystemCursor strobes the global cursor).</summary>
 internal sealed class SystemCursorService : ISystemCursorService
 {
-    private static readonly uint[] PointerIds = { OCR_NORMAL, OCR_HAND, OCR_APPSTARTING, OCR_HELP };
     private static readonly uint[] AllIds =
     {
         OCR_NORMAL, OCR_HAND, OCR_APPSTARTING, OCR_HELP, OCR_UP,
@@ -13,21 +14,33 @@ internal sealed class SystemCursorService : ISystemCursorService
         OCR_SIZENWSE, OCR_SIZENESW, OCR_SIZEWE, OCR_SIZENS, OCR_NO
     };
 
-    private IntPtr _template = IntPtr.Zero;
+    private readonly Dictionary<uint, IntPtr> _templates = new();
     private IntPtr _blank = IntPtr.Zero;
-    private bool _replaceAll;
 
     public bool Active { get; private set; }
 
-    public void Apply(CursorImage image, bool replaceAllTypes)
+    public void Apply(IReadOnlyDictionary<uint, CursorImage> scheme)
     {
-        IntPtr fresh = CursorHandles.Build(image.Bitmap, image.HotX, image.HotY);
-        if (fresh == IntPtr.Zero) return;
-        if (_template != IntPtr.Zero) DestroyCursor(_template);
-        _template = fresh;
-        _replaceAll = replaceAllTypes;
-        SetIds(_template, replaceAllTypes ? AllIds : PointerIds);
+        DestroyTemplates();
+        foreach (var kv in scheme)
+        {
+            IntPtr t = CursorHandles.Build(kv.Value.Bitmap, kv.Value.HotX, kv.Value.HotY);
+            kv.Value.Dispose();               // service takes ownership of the images
+            if (t == IntPtr.Zero) continue;
+            _templates[kv.Key] = t;
+            IntPtr copy = CopyIcon(t);        // SetSystemCursor destroys the handle it receives
+            if (copy != IntPtr.Zero) SetSystemCursor(copy, kv.Key);
+        }
         Active = true;
+    }
+
+    public void Reassert()
+    {
+        foreach (var kv in _templates)
+        {
+            IntPtr copy = CopyIcon(kv.Value);
+            if (copy != IntPtr.Zero) SetSystemCursor(copy, kv.Key);
+        }
     }
 
     public void Blank()
@@ -40,14 +53,12 @@ internal sealed class SystemCursorService : ISystemCursorService
             _blank = CreateCursor(GetModuleHandle(null), 0, 0, 32, 32, and, xor);
         }
         if (_blank == IntPtr.Zero) return;
-        SetIds(_blank, AllIds);   // blank everything so nothing (incl. I-beam) shows under an overlay
+        foreach (var id in AllIds)
+        {
+            IntPtr c = CopyIcon(_blank);
+            if (c != IntPtr.Zero) SetSystemCursor(c, id);
+        }
         Active = true;
-    }
-
-    public void Reassert()
-    {
-        if (_template == IntPtr.Zero) return;
-        SetIds(_template, _replaceAll ? AllIds : PointerIds);
     }
 
     public void Restore()
@@ -74,15 +85,13 @@ internal sealed class SystemCursorService : ISystemCursorService
         }
         catch { }
         try { SystemParametersInfo(SPI_SETCURSORS, 0, IntPtr.Zero, SPIF_SENDCHANGE); } catch { }
+        DestroyTemplates();
         Active = false;
     }
 
-    private static void SetIds(IntPtr template, uint[] ids)
+    private void DestroyTemplates()
     {
-        foreach (var id in ids)
-        {
-            IntPtr copy = CopyIcon(template); // SetSystemCursor destroys the handle it receives
-            if (copy != IntPtr.Zero) SetSystemCursor(copy, id);
-        }
+        foreach (var t in _templates.Values) DestroyCursor(t);
+        _templates.Clear();
     }
 }

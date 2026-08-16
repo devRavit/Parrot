@@ -11,7 +11,7 @@ internal static class Program
 {
     public const string AppName = "Parrot";
     public const string ExeName = "Parrot.exe";
-    public const string Version = "2.0.1";
+    public const string Version = "2.1.0";
     public const string RunName = "Parrot";
     public const string ArpKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Parrot";
 
@@ -352,4 +352,5 @@ internal static class Shortcuts
         catch { }
     }
 }
+
 
