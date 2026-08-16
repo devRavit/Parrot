@@ -32,7 +32,7 @@ internal static class Program
             var o = new InstallOptions
             {
                 Dir = DefaultInstallDir,
-                Desktop = true, StartMenu = true, AutoStart = true, Launch = false
+                Desktop = true, StartMenu = true, AutoStart = true, Launch = true
             };
             Engine.Install(o, _ => { });
             return;

@@ -1,0 +1,32 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build (app + installer)
+        shell: pwsh
+        run: ./build.ps1
+        # Native hook DLL: build.ps1 uses the committed dist/ParrotHook64.dll when gcc is absent.
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: parrot
+          path: |
+            dist/Parrot.exe
+            dist/Parrot-Setup.exe
+          if-no-files-found: error

@@ -39,7 +39,7 @@ internal sealed class GitHubUpdateService : IUpdateService
 
             var latest = ParseVersion(root.GetProperty("tag_name").GetString());
             if (latest == null) { if (manual) Info("최신 릴리스 정보를 확인할 수 없습니다."); return; }
-            if (latest <= Current) { if (manual) Info($"최신 버전입니다. (현재 v{Current.ToString(3)})"); return; }
+            if (Normalize(latest) <= Normalize(Current)) { if (manual) Info($"최신 버전입니다. (현재 v{Current.ToString(3)})"); return; }
 
             string? assetUrl = null, assetName = null;
             foreach (var a in root.GetProperty("assets").EnumerateArray())
@@ -50,8 +50,7 @@ internal sealed class GitHubUpdateService : IUpdateService
             }
             if (assetUrl == null) { if (manual) Info($"새 버전 v{latest.ToString(3)} 이 있으나 설치 파일을 찾지 못했습니다."); return; }
 
-            if (!Confirm($"새 버전 v{latest.ToString(3)} 이 있습니다.\n지금 업데이트할까요?")) return;
-
+            // Automatic: download and install silently (no prompt), then exit so the installer swaps.
             string tmp = Path.Combine(Path.GetTempPath(), assetName!);
             using (var resp = await _http.GetAsync(assetUrl, HttpCompletionOption.ResponseHeadersRead))
             using (var fs = new FileStream(tmp, FileMode.Create, FileAccess.Write))
@@ -70,13 +69,9 @@ internal sealed class GitHubUpdateService : IUpdateService
         return m.Success && Version.TryParse(m.Value, out var v) ? v : null;
     }
 
+    /// <summary>Compare only Major.Minor.Build (avoid Version's -1 revision quirks).</summary>
+    private static Version Normalize(Version v) => new(v.Major, Math.Max(0, v.Minor), Math.Max(0, v.Build));
+
     private static void OnUi(Action a) => System.Windows.Application.Current?.Dispatcher.Invoke(a);
     private static void Info(string s) => OnUi(() => MessageBox.Show(s, "Parrot 업데이트", MessageBoxButton.OK, MessageBoxImage.Information));
-    private static bool Confirm(string s)
-    {
-        bool r = false;
-        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
-            r = MessageBox.Show(s, "Parrot 업데이트", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes);
-        return r;
-    }
 }
