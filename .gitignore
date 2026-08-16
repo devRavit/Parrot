@@ -1,0 +1,8 @@
+bin/
+obj/
+installer/payload/
+dist/*.exe
+*.user
+*.suo
+.vs/
+native/minhook.zip

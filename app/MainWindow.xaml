@@ -1,0 +1,148 @@
+<Window x:Class="Parrot.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Parrot" Height="640" Width="940"
+        WindowStyle="None" ResizeMode="CanMinimize" AllowsTransparency="True"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        FontFamily="{StaticResource UiFont}" Foreground="{StaticResource Text}">
+
+  <Border Background="{StaticResource Bg}" CornerRadius="14" BorderBrush="{StaticResource Border}" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="46"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <!-- title bar -->
+      <Grid x:Name="TitleBar" Grid.Row="0" Background="Transparent">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+          <Border Width="22" Height="22" CornerRadius="6" Background="{StaticResource Accent}">
+            <TextBlock Text="➤" Foreground="#FF10141A" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+          <TextBlock Text="Parrot" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"/>
+          <TextBlock Text="커서 통일 대시보드" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource SubText}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button x:Name="MinBtn" Style="{StaticResource Chrome}" Content="&#xE921;"/>
+          <Button x:Name="CloseBtn" Style="{StaticResource Chrome}" Content="&#xE8BB;"/>
+        </StackPanel>
+      </Grid>
+
+      <!-- content -->
+      <Grid Grid.Row="1" Margin="16,4,16,16">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="368"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT -->
+        <Grid Grid.Column="0" Margin="0,0,12,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <!-- status card -->
+          <Border Grid.Row="0" Background="{StaticResource Panel}" CornerRadius="12" Padding="18,14">
+            <Grid>
+              <StackPanel>
+                <TextBlock x:Name="StatusTitle" Text="커서 통일 — 켜짐" FontSize="18" FontWeight="SemiBold"/>
+                <TextBlock x:Name="StatusText" Text="모든 프로그램에서 같은 커서가 표시됩니다."
+                           Foreground="{StaticResource SubText}" FontSize="12.5" Margin="0,4,0,0"/>
+              </StackPanel>
+              <ToggleButton x:Name="MasterToggle" Style="{StaticResource Switch}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+          </Border>
+
+          <TextBlock Grid.Row="1" Text="커서 선택" FontSize="13" FontWeight="SemiBold" Margin="4,16,0,8" Foreground="{StaticResource SubText}"/>
+
+          <!-- gallery -->
+          <Border Grid.Row="2" Background="{StaticResource Panel}" CornerRadius="12" Padding="6">
+            <ListBox x:Name="Gallery" Background="Transparent" BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     ItemContainerStyle="{StaticResource Tile}">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Width="100" Height="108" VerticalAlignment="Center">
+                    <Image Source="{Binding Image}" Width="72" Height="72" Margin="0,10,0,0"
+                           HorizontalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <TextBlock Text="{Binding Name}" FontSize="11" Foreground="{StaticResource Text}"
+                               HorizontalAlignment="Center" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Border>
+        </Grid>
+
+        <!-- RIGHT -->
+        <StackPanel Grid.Column="1">
+          <!-- preview -->
+          <Border Background="{StaticResource Panel}" CornerRadius="12" Padding="16">
+            <StackPanel>
+              <TextBlock Text="미리보기" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource SubText}"/>
+              <Border Height="170" Margin="0,10,0,0" CornerRadius="10" Background="{StaticResource PanelHi}">
+                <Image x:Name="PreviewImage" Width="150" Height="150" RenderOptions.BitmapScalingMode="HighQuality"/>
+              </Border>
+            </StackPanel>
+          </Border>
+
+          <!-- size -->
+          <Border Background="{StaticResource Panel}" CornerRadius="12" Padding="16" Margin="0,12,0,0">
+            <StackPanel>
+              <DockPanel>
+                <TextBlock Text="크기" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource SubText}"/>
+                <TextBlock x:Name="SizeLabel" Text="Large" HorizontalAlignment="Right" DockPanel.Dock="Right" Foreground="{StaticResource Accent}" FontSize="12.5"/>
+              </DockPanel>
+              <Slider x:Name="SizeSlider" Minimum="0" Maximum="4" TickFrequency="1" IsSnapToTickEnabled="True"
+                      Margin="0,8,0,0"/>
+            </StackPanel>
+          </Border>
+
+          <!-- color -->
+          <Border x:Name="ColorCard" Background="{StaticResource Panel}" CornerRadius="12" Padding="16" Margin="0,12,0,0">
+            <StackPanel>
+              <TextBlock Text="색상" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource SubText}"/>
+              <WrapPanel x:Name="SwatchPanel" Margin="0,10,0,0"/>
+              <TextBlock x:Name="ColorNote" Text="이 커서는 색상이 고정되어 있어요 (기본 모양은 색상 변경 가능)."
+                         FontSize="11" Foreground="{StaticResource SubText}" TextWrapping="Wrap"
+                         Margin="0,4,0,0" Visibility="Collapsed"/>
+            </StackPanel>
+          </Border>
+
+          <!-- options -->
+          <Border Background="{StaticResource Panel}" CornerRadius="12" Padding="16" Margin="0,12,0,0">
+            <StackPanel>
+              <Grid Margin="0,2">
+                <StackPanel>
+                  <TextBlock Text="모든 커서 종류 교체" FontSize="13"/>
+                  <TextBlock Text="I-beam·리사이즈 포함" FontSize="11" Foreground="{StaticResource SubText}"/>
+                </StackPanel>
+                <ToggleButton x:Name="ReplaceAllToggle" Style="{StaticResource MiniSwitch}" HorizontalAlignment="Right"/>
+              </Grid>
+              <Grid Margin="0,10,0,2">
+                <StackPanel>
+                  <TextBlock Text="Windows 시작 시 자동 실행" FontSize="13"/>
+                  <TextBlock Text="부팅하면 자동으로 적용" FontSize="11" Foreground="{StaticResource SubText}"/>
+                </StackPanel>
+                <ToggleButton x:Name="AutoStartToggle" Style="{StaticResource MiniSwitch}" HorizontalAlignment="Right"/>
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <TextBlock Text="🎮 게임·에뮬레이터는 자동 감지되어 적용됩니다 (MuMu=후킹, 안티치트 게임=오버레이)."
+                     FontSize="11" Foreground="{StaticResource Accent}" TextWrapping="Wrap" Margin="4,14,0,0"/>
+          <TextBlock Text="내 커서 추가: 아래 폴더에 PNG를 넣으세요."
+                     FontSize="11" Foreground="{StaticResource SubText}" TextWrapping="Wrap" Margin="4,10,0,0"/>
+          <Button x:Name="OpenFolderBtn" Style="{StaticResource Btn}" Content="커서 폴더 열기" HorizontalAlignment="Left" Margin="4,8,0,0"/>
+        </StackPanel>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

@@ -1,0 +1,86 @@
+CURSOR ASSET CREDITS
+====================
+
+All assets in this folder are CC0 1.0 (Creative Commons Zero / public domain).
+CC0 permits use, modification, and redistribution for any purpose, including
+bundling in a redistributed commercial application, with NO attribution
+required. Attribution is given below voluntarily.
+
+CC0 1.0 full text: https://creativecommons.org/publicdomain/zero/1.0/
+
+Author of all source assets: Kenney (Kenney Vleugels) - https://kenney.nl
+No GPL, proprietary, or "personal-use-only" assets were included.
+
+------------------------------------------------------------------------
+SOURCE 1 - Kenney "Cursor Pack" (v1.1), CC0
+  Page:     https://kenney.nl/assets/cursor-pack
+  Download: https://opengameart.org/content/cursor-pack-1
+            (direct: https://opengameart.org/sites/default/files/kenney_cursor-pack_0.zip)
+  License:  CC0 1.0 (see License.txt inside the pack)
+
+  The following PNGs were rendered at 256x256 from the pack's scalable
+  vector (SVG) "Outline" sources using @resvg/resvg-js (clean anti-aliasing).
+  "Colored" variants were produced by recoloring the white fill of the
+  Outline SVG while keeping the black outline (CC0 derivative works).
+
+  arrow_up.png              <- Vector/Outline/arrow_n.svg
+  arrow_up_red.png          <- arrow_n.svg, white fill recolored #ff2b2b
+  arrow_up_green.png        <- arrow_n.svg, white fill recolored #29d63a
+  arrow_up_yellow.png       <- arrow_n.svg, white fill recolored #ffd400
+  arrow_up_cyan.png         <- arrow_n.svg, white fill recolored #22e0e0
+  arrow_triangle_up.png     <- Vector/Outline/navigation_n.svg
+  pointer_classic.png       <- Vector/Outline/pointer_b.svg
+  pointer_classic_red.png   <- pointer_b.svg, white fill recolored #ff2b2b
+  pointer_classic_green.png <- pointer_b.svg, white fill recolored #29d63a
+  pointer_shaded_3d.png     <- Vector/Outline/pointer_b_shaded.svg
+  pointer_scifi.png         <- Vector/Outline/pointer_scifi_a.svg
+  hand_point.png            <- Vector/Outline/hand_point.svg
+  hand_open.png             <- Vector/Outline/hand_open.svg
+  gauntlet_point.png        <- Vector/Outline/gauntlet_point.svg
+  target_round.png          <- Vector/Outline/target_round_b.svg
+  target_square.png         <- Vector/Outline/target_a.svg
+
+------------------------------------------------------------------------
+SOURCE 2 - Kenney "Crosshair Pack" (v1.1, 200x), CC0
+  Page:     https://kenney.nl/assets/crosshair-pack
+  Download: https://opengameart.org/content/crosshair-pack-200%C3%97
+            (direct: https://opengameart.org/sites/default/files/kenney_crosshair-pack.zip)
+  License:  CC0 1.0 (see License.txt inside the pack)
+
+  White crosshairs below were copied unmodified from the pack's
+  "PNG/Outline (2x)" folder (148x148, white glyph with dark outline).
+
+  crosshair_dot_small.png        <- Outline (2x)/crosshair-000.png
+  crosshair_cross_plus.png       <- Outline (2x)/crosshair-001.png
+  crosshair_cross_x.png          <- Outline (2x)/crosshair-004.png
+  crosshair_scope_classic.png    <- Outline (2x)/crosshair-006.png
+  crosshair_scope_target.png     <- Outline (2x)/crosshair-007.png
+  crosshair_scope_bullseye.png   <- Outline (2x)/crosshair-009.png
+  crosshair_reticle_dashed.png   <- Outline (2x)/crosshair-027.png
+  crosshair_scope_sniper.png     <- Outline (2x)/crosshair-029.png
+  crosshair_scope_mildot.png     <- Outline (2x)/crosshair-047.png
+  crosshair_reticle_x_mildot.png <- Outline (2x)/crosshair-049.png
+  crosshair_target_concentric.png<- Outline (2x)/crosshair-068.png
+  crosshair_reticle_scifi_box.png<- Outline (2x)/crosshair-069.png
+  crosshair_reticle_ring_dot.png <- Outline (2x)/crosshair-087.png
+  crosshair_reticle_x_dot.png    <- Outline (2x)/crosshair-147.png
+
+  Colored crosshairs below were produced by tinting the pack's pure-white
+  "PNG/Light (2x)" glyphs (128x128) to a solid color, preserving the
+  original anti-aliased alpha channel (CC0 derivative works).
+
+  crosshair_scope_classic_red.png       <- Light (2x)/crosshair-006.png tinted #ff2b2b
+  crosshair_reticle_ring_dot_green.png  <- Light (2x)/crosshair-087.png tinted #29d63a
+  crosshair_scope_bullseye_cyan.png     <- Light (2x)/crosshair-009.png tinted #22e0e0
+  crosshair_target_concentric_yellow.png<- Light (2x)/crosshair-068.png tinted #ffd400
+
+------------------------------------------------------------------------
+NOTES
+  - Total: 34 PNG files, all with transparent alpha.
+  - Formats/sizes: vector-sourced cursors 256x256; white crosshairs 148x148;
+    colored crosshairs 128x128.
+  - SKIPPED: "Volantes" cursor theme (github.com/varlesh/volantes-cursors)
+    was considered but omitted - the repository ships no explicit permissive
+    LICENSE file (varlesh cursor themes are typically GPLv3), which does not
+    meet the CC0/PD/MIT/Unlicense requirement. No questionable-license
+    assets were bundled.
